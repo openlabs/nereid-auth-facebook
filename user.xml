@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This file is part of Tryton & Nereid. The COPYRIGHT file at the
+        top level of this repository contains the full copyright notices
+        and license terms.
+    -->
+<tryton>
+    <data>
+
+        <record id="inherit_nereid_website_facebook" model="ir.ui.view">
+            <field name="model">nereid.website</field>
+            <field name="inherit" ref="nereid.website_view_form"/>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <data>
+                    <xpath expr="/form/notebook" position="inside">
+                        <page string="Facebook Configuration" id="facebook">
+                          <label name="facebook_app_id" />
+                          <field name="facebook_app_id" />
+                          <label name="facebook_app_secret" />
+                          <field name="facebook_app_secret" />
+                        </page>
+                    </xpath>
+                </data>
+                ]]>
+            </field>
+        </record>
+
+    </data>
+</tryton>

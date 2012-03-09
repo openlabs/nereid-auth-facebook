@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tryton>
+    <data noupdate="1">
+    
+        <record id="facebook_authorized_login" model="nereid.url_rule">
+            <field name="rule">/&lt;language&gt;/auth/facebook_authorized_login</field>
+            <field name="endpoint">nereid.user.facebook_authorized_login</field>
+            <field name="sequence" eval="100" />
+            <field name="url_map" ref="nereid.default_url_map" />
+        </record>
+    
+        <record id="facebook_login" model="nereid.url_rule">
+            <field name="rule">/&lt;language&gt;/auth/facebook</field>
+            <field name="endpoint">nereid.user.facebook_login</field>
+            <field name="sequence" eval="110" />
+            <field name="url_map" ref="nereid.default_url_map" />
+        </record>
+
+    </data>
+</tryton>
