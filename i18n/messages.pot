@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2012-03-07 17:43-0500\n"
+"POT-Creation-Date: 2012-03-09 17:54-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,16 +21,20 @@ msgstr ""
 msgid "Facebook login is not available at the moment"
 msgstr ""
 
-#: user.py:89
+#: user.py:105
+msgid "We cannot talk to facebook at this time. Please try again"
+msgstr ""
+
+#: user.py:112
 #, python-format
 msgid "Access was denied to facebook: %(reason)s"
 msgstr ""
 
-#: user.py:118
+#: user.py:142
 msgid "Thanks for registering with us using facebook"
 msgstr ""
 
-#: user.py:126
+#: user.py:153
 #, python-format
 msgid "You are now logged in. Welcome %(name)s"
 msgstr ""

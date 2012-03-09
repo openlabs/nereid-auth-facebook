@@ -60,6 +60,8 @@ class NereidUser(ModelSQL, ModelView):
     "Nereid User"
     _name = "nereid.user"
 
+    facebook_id = fields.Char('Facebook ID')
+
     def facebook_login(self):
         """The URL to which a new request to authenticate to facebook begins
         Usually issues a redirect.
@@ -90,13 +92,20 @@ class NereidUser(ModelSQL, ModelView):
                 request.referrer or url_for('nereid.website.login')
             )
 
-        if 'oauth_verifier' in request.args:
-            data = facebook.handle_oauth1_response()
-        elif 'code' in request.args:
-            data = facebook.handle_oauth2_response()
-        else:
-            data = facebook.handle_unknown_response()
-        facebook.free_request_token()
+        try:
+            if 'oauth_verifier' in request.args:
+                data = facebook.handle_oauth1_response()
+            elif 'code' in request.args:
+                data = facebook.handle_oauth2_response()
+            else:
+                data = facebook.handle_unknown_response()
+            facebook.free_request_token()
+        except Exception, exc:
+            current_app.logger.error("Facebook login failed", exc)
+            flash(_("We cannot talk to facebook at this time. Please try again"))
+            return redirect(
+                request.referrer or url_for('nereid.website.login')
+            )
 
         if data is None:
             flash(
@@ -107,7 +116,7 @@ class NereidUser(ModelSQL, ModelView):
             return redirect(url_for('nereid.website.login'))
 
         # Write the oauth token to the session
-        session['oauth_token'] = (data['access_token'], '')
+        session['facebook_oauth_token'] = (data['access_token'], '')
 
         # Find the information from facebook
         me = facebook.get('/me')
@@ -127,6 +136,7 @@ class NereidUser(ModelSQL, ModelView):
             user_id = self.create({
                 'name': me.data['name'],
                 'email': me.data['email'],
+                'facebook_id': me.data['id'],
             })
             flash(
                 _('Thanks for registering with us using facebook')
@@ -137,6 +147,9 @@ class NereidUser(ModelSQL, ModelView):
         # Add the user to session and trigger signals
         session['user'] = user_id
         user = self.browse(user_id)
+        if not user.facebook_id:
+            # if the user has no facebook id save it
+            self.write(user_id, {'facebook_id': me.data['id']})
         flash(_("You are now logged in. Welcome %(name)s",
                     name=user.name))
         login.send(self)
