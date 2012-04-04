@@ -137,6 +137,7 @@ class NereidUser(ModelSQL, ModelView):
                 'name': me.data['name'],
                 'email': me.data['email'],
                 'facebook_id': me.data['id'],
+                'addresses': False,
             })
             flash(
                 _('Thanks for registering with us using facebook')
