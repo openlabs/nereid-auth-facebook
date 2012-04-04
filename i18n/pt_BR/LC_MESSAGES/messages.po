@@ -3,14 +3,13 @@
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2012-04-04 15:40-0400\n"
-"PO-Revision-Date: 2012-04-04 15:40-0400\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2012-04-04 17:10-0500\n"
+"Last-Translator: Esteban <esteban@dhtsglobal.com>\n"
 "Language-Team: pt_BR <LL@li.org>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
@@ -20,23 +19,23 @@ msgstr ""
 
 #: user.py:37
 msgid "Facebook login is not available at the moment"
-msgstr ""
+msgstr "O login do Facebook não está disponível no momento"
 
 #: user.py:105
 msgid "We cannot talk to facebook at this time. Please try again"
-msgstr ""
+msgstr "Não podemos conectar ao facebook neste momento. Por favor, tente novamente"
 
 #: user.py:112
 #, python-format
 msgid "Access was denied to facebook: %(reason)s"
-msgstr ""
+msgstr "O acesso foi negado ao facebook: %(reason)s"
 
 #: user.py:142
 msgid "Thanks for registering with us using facebook"
-msgstr ""
+msgstr "Obrigado por registrar-se conosco através do Facebook"
 
 #: user.py:153
 #, python-format
 msgid "You are now logged in. Welcome %(name)s"
-msgstr ""
+msgstr "Você agora está conectado. Bem-vindo %(name)s"
 
