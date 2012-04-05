@@ -52,6 +52,14 @@ class Website(ModelSQL, ModelView):
         )
         return facebook
 
+    def _user_status(self):
+        """
+        Add facebook_id to the user_status if the user is logged in
+        """
+        rv = super(Website, self)._user_status()
+        if not request.is_guest_user and request.nereid_user.facebook_id:
+            rv['facebook_id'] = request.nereid_user.facebook_id
+        return rv
 
 Website()
 
