@@ -5,7 +5,7 @@
     Facebook based user authentication code
 
     :copyright: (c) 2012 by Openlabs Technologies & Consulting (P) LTD
-    :license: BSD, see LICENSE for more details.
+    :license: GPLv3, see LICENSE for more details.
 """
 from nereid import url_for, flash, redirect, current_app
 from nereid.globals import session, request
