@@ -3,8 +3,8 @@
 
 {
     'name': 'Nereid Facebook Auth',
-    'version': '2.0.0.1',
-    'author': 'Openlabs Technologies & Consulting',
+    'version': '2.4.0.1dev',
+    'author': 'Openlabs Technologies & Consulting (P) Ltd.',
     'email': 'info@openlabs.co.in',
     'website': 'http://www.openlabs.co.in/',
     'description': '''
