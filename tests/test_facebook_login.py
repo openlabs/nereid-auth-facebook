@@ -5,7 +5,7 @@
     Test the facebook login
 
     :copyright: (c) 2012 by Openlabs Technologies & Consulting (P) LTD
-    :license: BSD, see LICENSE for more details.
+    :license: GPLv3, see LICENSE for more details.
 """
 import os
 import unittest2 as unittest
@@ -22,6 +22,7 @@ from trytond.modules import register_classes
 register_classes()
 from nereid.testing import testing_proxy, TestCase
 from trytond.transaction import Transaction
+from trytond.pool import Pool
 
 _def = []
 def get_from_env(key):
@@ -65,9 +66,11 @@ class TestFacebookAuth(TestCase):
         super(TestFacebookAuth, cls).setUpClass()
         # Install module
         testing_proxy.install_module('nereid_auth_facebook')
-        country_obj = testing_proxy.pool.get('country.country')
 
         with Transaction().start(testing_proxy.db_name, 1, None) as txn:
+            country_obj = Pool().get('country.country')
+            currency_obj = Pool().get('currency.currency')
+
             company = testing_proxy.create_company('Test Company')
             testing_proxy.set_company_for_user(1, company)
 
@@ -77,9 +80,16 @@ class TestFacebookAuth(TestCase):
             )
 
             cls.available_countries = country_obj.search([], limit=5)
+            cls.available_currencies = currency_obj.search([
+                ('code', '=', 'USD')
+            ])
+
             cls.site = testing_proxy.create_site(
-                'testsite.com',
-                countries = [('set', cls.available_countries)]
+                'localhost',
+                countries = [('set', cls.available_countries)],
+                currencies = [('set', cls.available_currencies)],
+                application_user = 1,
+                guest_user = cls.guest_user,
             )
 
             testing_proxy.create_template(
@@ -93,11 +103,7 @@ class TestFacebookAuth(TestCase):
             txn.cursor.commit()
 
     def get_app(self, **options):
-        options.update({
-            'SITE': 'testsite.com',
-            'GUEST_USER': self.guest_user,
-        })
-        return testing_proxy.make_app(**options)
+        return testing_proxy.make_app(SITE='localhost', **options)
 
     def setUp(self):
         self.nereid_user_obj = testing_proxy.pool.get('nereid.user')

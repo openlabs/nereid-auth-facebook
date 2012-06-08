@@ -12,6 +12,7 @@ from nereid.globals import session, request
 from nereid.signals import login, failed_login
 from flaskext.oauth import OAuth
 from trytond.model import ModelSQL, ModelView, fields
+from trytond.pool import Pool
 
 from .i18n import _
 
@@ -74,7 +75,7 @@ class NereidUser(ModelSQL, ModelView):
         """The URL to which a new request to authenticate to facebook begins
         Usually issues a redirect.
         """
-        website_obj = self.pool.get('nereid.website')
+        website_obj = Pool().get('nereid.website')
 
         facebook = website_obj.get_facebook_oauth_client()
         if facebook is None:
@@ -92,7 +93,7 @@ class NereidUser(ModelSQL, ModelView):
         """Authorized handler to which facebook will redirect the user to
         after the login attempt is made.
         """
-        website_obj = self.pool.get('nereid.website')
+        website_obj = Pool().get('nereid.website')
 
         facebook = website_obj.get_facebook_oauth_client()
         if facebook is None:
