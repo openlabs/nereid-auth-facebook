@@ -144,6 +144,7 @@ class NereidUser(ModelSQL, ModelView):
             )
             user_id = self.create({
                 'name': me.data['name'],
+                'display_name': me.data['name'],
                 'email': me.data['email'],
                 'facebook_id': me.data['id'],
                 'addresses': False,
