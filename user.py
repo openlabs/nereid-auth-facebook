@@ -10,7 +10,7 @@
 from nereid import url_for, flash, redirect, current_app
 from nereid.globals import session, request
 from nereid.signals import login, failed_login
-from flaskext.oauth import OAuth
+from flask_oauth import OAuth
 from trytond.model import ModelSQL, ModelView, fields
 from trytond.pool import Pool
 
