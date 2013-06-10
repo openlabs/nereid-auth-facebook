@@ -4,36 +4,35 @@
 
     Facebook based user authentication code
 
-    :copyright: (c) 2012 by Openlabs Technologies & Consulting (P) LTD
+    :copyright: (c) 2012-2013 by Openlabs Technologies & Consulting (P) LTD
     :license: GPLv3, see LICENSE for more details.
 """
 from nereid import url_for, flash, redirect, current_app
 from nereid.globals import session, request
 from nereid.signals import login, failed_login
 from flask_oauth import OAuth
-from trytond.model import ModelSQL, ModelView, fields
-from trytond.pool import Pool
+from trytond.model import fields
+from trytond.pool import PoolMeta
 
 from .i18n import _
 
 
-class Website(ModelSQL, ModelView):
+__all__ = ['Website', 'NereidUser']
+__metaclass__ = PoolMeta
+
+
+class Website:
     """Add Globalcollect settings"""
-    _name = "nereid.website"
+    __name__ = "nereid.website"
 
     facebook_app_id = fields.Char("Facebook App ID")
     facebook_app_secret = fields.Char("Facebook App Secret")
 
-    def get_facebook_oauth_client(self, site=None):
-        """Returns a instance of WebCollect
-
-        :param site: Browserecord of the website, If not specified, it will be
-                     guessed from the request context
+    def get_facebook_oauth_client(self):
         """
-        if site is None:
-            site = request.nereid_website
-
-        if not all([site.facebook_app_id, site.facebook_app_secret]):
+        Returns a instance of WebCollect
+        """
+        if not all([self.facebook_app_id, self.facebook_app_secret]):
             current_app.logger.error("Facebook api settings are missing")
             flash(_("Facebook login is not available at the moment"))
             return None
@@ -44,8 +43,8 @@ class Website(ModelSQL, ModelView):
             request_token_url=None,
             access_token_url='/oauth/access_token',
             authorize_url='https://www.facebook.com/dialog/oauth',
-            consumer_key=site.facebook_app_id,
-            consumer_secret=site.facebook_app_secret,
+            consumer_key=self.facebook_app_id,
+            consumer_secret=self.facebook_app_secret,
             request_token_params={'scope': 'email'}
         )
         facebook.tokengetter_func = lambda *a: session.get(
@@ -62,22 +61,19 @@ class Website(ModelSQL, ModelView):
             rv['facebook_id'] = request.nereid_user.facebook_id
         return rv
 
-Website()
 
-
-class NereidUser(ModelSQL, ModelView):
+class NereidUser:
     "Nereid User"
-    _name = "nereid.user"
+    __name__ = "nereid.user"
 
     facebook_id = fields.Char('Facebook ID')
 
-    def facebook_login(self):
+    @classmethod
+    def facebook_login(cls):
         """The URL to which a new request to authenticate to facebook begins
         Usually issues a redirect.
         """
-        website_obj = Pool().get('nereid.website')
-
-        facebook = website_obj.get_facebook_oauth_client()
+        facebook = request.nereid_website.get_facebook_oauth_client()
         if facebook is None:
             return redirect(
                 request.referrer or url_for('nereid.website.login')
@@ -89,13 +85,12 @@ class NereidUser(ModelSQL, ModelView):
             )
         )
 
-    def facebook_authorized_login(self):
+    @classmethod
+    def facebook_authorized_login(cls):
         """Authorized handler to which facebook will redirect the user to
         after the login attempt is made.
         """
-        website_obj = Pool().get('nereid.website')
-
-        facebook = website_obj.get_facebook_oauth_client()
+        facebook = request.nereid_website.get_facebook_oauth_client()
         if facebook is None:
             return redirect(
                 request.referrer or url_for('nereid.website.login')
@@ -111,7 +106,9 @@ class NereidUser(ModelSQL, ModelView):
             facebook.free_request_token()
         except Exception, exc:
             current_app.logger.error("Facebook login failed", exc)
-            flash(_("We cannot talk to facebook at this time. Please try again"))
+            flash(_
+                ("We cannot talk to facebook at this time. Please try again")
+            )
             return redirect(
                 request.referrer or url_for('nereid.website.login')
             )
@@ -121,7 +118,7 @@ class NereidUser(ModelSQL, ModelView):
                 _("Access was denied to facebook: %(reason)s",
                 reason=request.args['error_reason'])
             )
-            failed_login.send(self, form=data)
+            failed_login.send(form=data)
             return redirect(url_for('nereid.website.login'))
 
         # Write the oauth token to the session
@@ -131,18 +128,18 @@ class NereidUser(ModelSQL, ModelView):
         me = facebook.get('/me')
 
         # Find the user
-        user_ids = self.search([
+        users = cls.search([
             ('email', '=', me.data['email']),
             ('company', '=', request.nereid_website.company.id),
         ])
-        if not user_ids:
+        if not users:
             current_app.logger.debug(
                 "No FB user with email %s" % me.data['email']
             )
             current_app.logger.debug(
                 "Registering new user %s" % me.data['name']
             )
-            user_id = self.create({
+            user_id = cls.create({
                 'name': me.data['name'],
                 'display_name': me.data['name'],
                 'email': me.data['email'],
@@ -153,17 +150,16 @@ class NereidUser(ModelSQL, ModelView):
                 _('Thanks for registering with us using facebook')
             )
         else:
-            user_id, = user_ids
+            user, = users
 
         # Add the user to session and trigger signals
-        session['user'] = user_id
-        user = self.browse(user_id)
+        session['user'] = user.id
         if not user.facebook_id:
             # if the user has no facebook id save it
-            self.write(user_id, {'facebook_id': me.data['id']})
+            cls.write([user], {'facebook_id': me.data['id']})
         flash(_("You are now logged in. Welcome %(name)s",
                     name=user.name))
-        login.send(self)
+        login.send()
         if request.is_xhr:
             return 'OK'
         return redirect(
@@ -171,6 +167,3 @@ class NereidUser(ModelSQL, ModelView):
                 'next', url_for('nereid.website.home')
             )
         )
-
-
-NereidUser()
