@@ -6,6 +6,7 @@
             <field name="rule">/&lt;language&gt;/auth/facebook_authorized_login</field>
             <field name="endpoint">nereid.user.facebook_authorized_login</field>
             <field name="sequence" eval="100" />
+            <field name="http_method_get" eval="True"/>
             <field name="url_map" ref="nereid.default_url_map" />
         </record>
     
@@ -13,6 +14,7 @@
             <field name="rule">/&lt;language&gt;/auth/facebook</field>
             <field name="endpoint">nereid.user.facebook_login</field>
             <field name="sequence" eval="110" />
+            <field name="http_method_get" eval="True"/>
             <field name="url_map" ref="nereid.default_url_map" />
         </record>
 
