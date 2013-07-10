@@ -139,7 +139,7 @@ class NereidUser:
             current_app.logger.debug(
                 "Registering new user %s" % me.data['name']
             )
-            user_id = cls.create({
+            user = cls.create({
                 'name': me.data['name'],
                 'display_name': me.data['name'],
                 'email': me.data['email'],
