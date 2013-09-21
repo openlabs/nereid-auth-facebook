@@ -8,20 +8,21 @@
     :license: GPLv3, see LICENSE for more details.
 """
 import os
-import unittest2 as unittest
+import unittest
 import BaseHTTPServer
 import urlparse
 import threading
 import webbrowser
 from StringIO import StringIO
+
 from lxml import etree
 
 import trytond.tests.test_tryton
-from trytond.tests.test_tryton import POOL, USER, DB_NAME, CONTEXT, \
-    test_view, test_depends
-from nereid.testing import NereidTestCase
+from trytond.tests.test_tryton import POOL, USER, DB_NAME, CONTEXT
 from trytond.transaction import Transaction
+from nereid.testing import NereidTestCase
 
+_def = []
 def get_from_env(key):
     """
     Find a value from environ or return the default if specified
@@ -52,59 +53,68 @@ class FacebookHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         print "parsed_path", parsed_path
         self.send_response(200)
         self.end_headers()
-        self.wfile.write("Hola, go back to your terminal window to see results")
+        self.wfile.write(
+            "Hola, go back to your terminal window to see results"
+        )
         return
 
 
 class TestFacebookAuth(NereidTestCase):
+    "Test Facebook Authenticated login"
 
     def setUp(self):
         trytond.tests.test_tryton.install_module('nereid_auth_facebook')
-        self.nereid_user_obj = POOL.get('nereid.user')
-        self.nereid_website_obj = POOL.get('nereid.website')
-        self.country_obj = POOL.get('country.country')
-        self.currency_obj = POOL.get('currency.currency')
-        self.company_obj = POOL.get('company.company')
-        self.url_map_obj = POOL.get('nereid.url_map')
-        self.language_obj = POOL.get('ir.lang')
+
+        self.Company = POOL.get('company.company')
+        self.Country = POOL.get('country.country')
+        self.Currency = POOL.get('currency.currency')
+        self.NereidUser = POOL.get('nereid.user')
+        self.UrlMap = POOL.get('nereid.url_map')
+        self.Language = POOL.get('ir.lang')
+        self.Website = POOL.get('nereid.website')
 
     def setup_defaults(self):
         """
-        Setup the defaults
+        Setup defaults
         """
-        usd = self.currency_obj.create({
+        usd = self.Currency.create({
             'name': 'US Dollar',
             'code': 'USD',
             'symbol': '$',
         })
-        company_id = self.company_obj.create({
+        company = self.Company.create({
             'name': 'Openlabs',
-            'currency': usd
+            'currency': usd.id
         })
-        guest_user = self.nereid_user_obj.create({
+        guest_user = self.NereidUser.create({
             'name': 'Guest User',
             'display_name': 'Guest User',
             'email': 'guest@openlabs.co.in',
             'password': 'password',
-            'company': company_id,
+            'company': company.id,
         })
-        self.registered_user_id = self.nereid_user_obj.create({
+        registered_user = self.NereidUser.create({
             'name': 'Registered User',
             'display_name': 'Registered User',
             'email': 'email@example.com',
             'password': 'password',
-            'company': company_id,
+            'company': company.id,
         })
-        url_map_id, = self.url_map_obj.search([], limit=1)
-        en_us, = self.language_obj.search([('code', '=', 'en_US')])
-        self.site = self.nereid_website_obj.create({
+        url_map, = self.UrlMap.search([], limit=1)
+        en_us, = self.Language.search([('code', '=', 'en_US')])
+        # When running this module, add site url's name in the app created
+        # using facebook
+        site = self.Website.create({
             'name': 'localhost',
-            'url_map': url_map_id,
-            'company': company_id,
+            'url_map': url_map.id,
+            'company': company.id,
             'application_user': USER,
-            'default_language': en_us,
-            'guest_user': guest_user,
+            'default_language': en_us.id,
+            'guest_user': guest_user.id,
         })
+        return {
+            'site': site
+        }
 
     def get_template_source(self, name):
         """
@@ -117,60 +127,51 @@ class TestFacebookAuth(NereidTestCase):
         }
         return self.templates.get(name)
 
-    def test_0005_test_view(self):
-        """
-        Test the view
-        """
-        test_view('nereid_auth_facebook')
-
-    def test_0006_test_depends(self):
-        """
-        Test Depends
-        """
-        test_depends()
-
     def test_0010_login(self):
         """
         Check for login with the next argument without API settings
         """
         with Transaction().start(DB_NAME, USER, CONTEXT):
-            self.setup_defaults()
+            data = self.setup_defaults()
             app = self.get_app()
 
             with app.test_client() as c:
                 response = c.get('/en_US/auth/facebook?next=/en_US')
                 self.assertEqual(response.status_code, 302)
-                # Redirect to the home page since
-                self.assertTrue(
-                    '<a href="/en_US/login">/en_US/login</a>' in response.data
-                )
-                rv = c.get('/')
-                self.assertTrue(
-                    'Facebook login is not available at the moment' in rv.data
-                )
+
+            # Redirect to the home page since
+            self.assertTrue(
+                '<a href="/en_US/login">/en_US/login</a>' in response.data
+            )
+            response = c.get('/')
+            self.assertTrue(
+                'Facebook login is not available at the moment' in \
+                response.data
+            )
 
     def test_0020_login(self):
         """
         Login with facebook settings
         """
         with Transaction().start(DB_NAME, USER, CONTEXT):
-            self.setup_defaults()
-            self.nereid_website_obj.write(self.site, {
+            data = self.setup_defaults()
+            app = self.get_app()
+            self.Website.write([data['site']], {
                 'facebook_app_id': get_from_env('FACEBOOK_APP_ID'),
                 'facebook_app_secret': get_from_env('FACEBOOK_APP_SECRET'),
             })
 
-            app = self.get_app()
             with app.test_client() as c:
                 response = c.get('/en_US/auth/facebook?next=/en_US')
                 self.assertEqual(response.status_code, 302)
                 self.assertTrue(
                     'https://www.facebook.com/dialog/oauth' in response.data
                 )
-                # send the user to the webbrowser and wait for a redirect
-                parser = etree.HTMLParser()
-                tree   = etree.parse(StringIO(response.data), parser)
-                webbrowser.open(tree.xpath('//p/a')[0].values()[0])
+
+            # send the user to the webbrowser and wait for a redirect
+            parser = etree.HTMLParser()
+            tree   = etree.parse(StringIO(response.data), parser)
+            webbrowser.open(tree.xpath('//p/a')[0].values()[0])
 
 
 def suite():
@@ -178,7 +179,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTests(
         unittest.TestLoader().loadTestsFromTestCase(TestFacebookAuth)
-        )
+    )
     return suite
 
 
