@@ -38,7 +38,8 @@ class Website:
             return None
 
         oauth = OAuth()
-        facebook = oauth.remote_app('facebook',
+        facebook = oauth.remote_app(
+            'facebook',
             base_url='https://graph.facebook.com/',
             request_token_url=None,
             access_token_url='/oauth/access_token',
@@ -48,7 +49,7 @@ class Website:
             request_token_params={'scope': 'email'}
         )
         facebook.tokengetter_func = lambda *a: session.get(
-                'facebook_oauth_token'
+            'facebook_oauth_token'
         )
         return facebook
 
@@ -79,9 +80,10 @@ class NereidUser:
                 request.referrer or url_for('nereid.website.login')
             )
         return facebook.authorize(
-            callback = url_for('nereid.user.facebook_authorized_login',
-                next = request.args.get('next') or request.referrer or None,
-                _external = True
+            callback=url_for(
+                'nereid.user.facebook_authorized_login',
+                next=request.args.get('next') or request.referrer or None,
+                _external=True
             )
         )
 
@@ -106,18 +108,18 @@ class NereidUser:
             facebook.free_request_token()
         except Exception, exc:
             current_app.logger.error("Facebook login failed", exc)
-            flash(_
-                ("We cannot talk to facebook at this time. Please try again")
+            flash(
+                _("We cannot talk to facebook at this time. Please try again")
             )
             return redirect(
                 request.referrer or url_for('nereid.website.login')
             )
 
         if data is None:
-            flash(
-                _("Access was denied to facebook: %(reason)s",
-                reason=request.args['error_reason'])
-            )
+            flash(_(
+                "Access was denied to facebook: %(reason)s",
+                reason=request.args['error_reason']
+            ))
             failed_login.send(form=data)
             return redirect(url_for('nereid.website.login'))
 
@@ -157,8 +159,9 @@ class NereidUser:
         if not user.facebook_id:
             # if the user has no facebook id save it
             cls.write([user], {'facebook_id': me.data['id']})
-        flash(_("You are now logged in. Welcome %(name)s",
-                    name=user.name))
+        flash(_(
+            "You are now logged in. Welcome %(name)s", name=user.name
+        ))
         login.send()
         if request.is_xhr:
             return 'OK'

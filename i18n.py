@@ -61,7 +61,8 @@ def gettext(string, **variables):
 
 
 def ngettext(singular, plural, n, **variables):
-    """Translates a string with the current locale and passes it to the 
+    """
+    Translates a string with the current locale and passes it to the
     ngettext API of the translations object
     """
     t = get_translations()

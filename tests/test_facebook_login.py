@@ -23,6 +23,8 @@ from trytond.transaction import Transaction
 from nereid.testing import NereidTestCase
 
 _def = []
+
+
 def get_from_env(key):
     """
     Find a value from environ or return the default if specified
@@ -31,7 +33,7 @@ def get_from_env(key):
     """
     try:
         return os.environ[key]
-    except KeyError, error:
+    except KeyError:
         raise Exception("%s is not set in environ" % key)
 
 REQUEST_RECEIVED = None
@@ -93,7 +95,7 @@ class TestFacebookAuth(NereidTestCase):
             'password': 'password',
             'company': company.id,
         })
-        registered_user = self.NereidUser.create({
+        self.NereidUser.create({
             'name': 'Registered User',
             'display_name': 'Registered User',
             'email': 'email@example.com',
@@ -132,7 +134,7 @@ class TestFacebookAuth(NereidTestCase):
         Check for login with the next argument without API settings
         """
         with Transaction().start(DB_NAME, USER, CONTEXT):
-            data = self.setup_defaults()
+            self.setup_defaults()
             app = self.get_app()
 
             with app.test_client() as c:
@@ -145,7 +147,7 @@ class TestFacebookAuth(NereidTestCase):
             )
             response = c.get('/')
             self.assertTrue(
-                'Facebook login is not available at the moment' in \
+                'Facebook login is not available at the moment' in
                 response.data
             )
 
@@ -170,7 +172,7 @@ class TestFacebookAuth(NereidTestCase):
 
             # send the user to the webbrowser and wait for a redirect
             parser = etree.HTMLParser()
-            tree   = etree.parse(StringIO(response.data), parser)
+            tree = etree.parse(StringIO(response.data), parser)
             webbrowser.open(tree.xpath('//p/a')[0].values()[0])
 
 
