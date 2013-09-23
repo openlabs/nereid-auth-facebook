@@ -30,7 +30,9 @@ class XMLTests(Command):
     def run(self):
         import coverage
         import xmlrunner
-        cov = coverage.coverage(source=["trytond.modules.nereid_auth_facebook"])
+        cov = coverage.coverage(
+            source=["trytond.modules.nereid_auth_facebook"]
+        )
         cov.start()
         from tests import suite
         xmlrunner.XMLTestRunner(output="xml-test-results").run(suite())
@@ -90,28 +92,33 @@ major_version, minor_version, _ = info.get('version', '0.0.1').split('.', 2)
 major_version = int(major_version)
 minor_version = int(minor_version)
 
-requires = []
+requires = ['flask_oauth', 'flask<0.10']
 for dep in info.get('depends', []):
     if not re.match(r'(ir|res|webdav)(\W|$)', dep):
-        requires.append('trytond_%s >= %s.%s, < %s.%s' %
-                (dep, major_version, minor_version, major_version,
-                    minor_version + 1))
-requires.append('trytond >= %s.%s, < %s.%s' %
-        (major_version, minor_version, major_version, minor_version + 1))
+        requires.append(
+            'trytond_%s >= %s.%s, < %s.%s' % (
+                dep, major_version, minor_version, major_version,
+                minor_version + 1
+            )
+        )
+requires.append(
+    'trytond >= %s.%s, < %s.%s' % (
+        major_version, minor_version, major_version, minor_version + 1
+    )
+)
 
-setup(name='trytond_nereid_auth_facebook',
+setup(
+    name='trytond_nereid_auth_facebook',
     version=info.get('version', '0.0.1'),
     description='Nereid User Authentication using Facebook',
     author='Openlabs Technologies and Consulting P Ltd.',
-    url=info.get('website', ''),
-    download_url="https://github.com/openlabs/nereid-auth-facebook",
+    url='http://www.openlabs.co.in',
     package_dir={'trytond.modules.nereid_auth_facebook': '.'},
     packages=[
         'trytond.modules.nereid_auth_facebook',
-        'trytond.modules.nereid_auth_facebook',
     ],
     package_data={
-        'trytond.modules.nereid_auth_facebook': info.get('xml', []) \
+        'trytond.modules.nereid_auth_facebook': info.get('xml', [])
                 + ['tryton.cfg'],
     },
     classifiers=[
