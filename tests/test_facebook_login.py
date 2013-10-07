@@ -74,46 +74,62 @@ class TestFacebookAuth(NereidTestCase):
         self.UrlMap = POOL.get('nereid.url_map')
         self.Language = POOL.get('ir.lang')
         self.Website = POOL.get('nereid.website')
+        self.Party = POOL.get('party.party')
 
     def setup_defaults(self):
         """
         Setup defaults
         """
-        usd = self.Currency.create({
+        usd, = self.Currency.create([{
             'name': 'US Dollar',
             'code': 'USD',
             'symbol': '$',
-        })
-        company = self.Company.create({
-            'name': 'Openlabs',
+        }])
+        party1, = self.Party.create([{
+            'name': 'Openlabs'
+        }])
+        company, = self.Company.create([{
+            'party': party1.id,
             'currency': usd.id
-        })
-        guest_user = self.NereidUser.create({
-            'name': 'Guest User',
+        }])
+        party2, = self.Party.create([{
+            'name': 'Guest User'
+        }])
+        guest_user, = self.NereidUser.create([{
+            'party': party2.id,
             'display_name': 'Guest User',
             'email': 'guest@openlabs.co.in',
             'password': 'password',
             'company': company.id,
-        })
-        self.NereidUser.create({
-            'name': 'Registered User',
+        }])
+
+        party3, = self.Party.create([{
+            'name': 'Registered User'
+        }])
+        self.NereidUser.create([{
+            'party': party3.id,
             'display_name': 'Registered User',
             'email': 'email@example.com',
             'password': 'password',
             'company': company.id,
-        })
+        }])
         url_map, = self.UrlMap.search([], limit=1)
         en_us, = self.Language.search([('code', '=', 'en_US')])
         # When running this module, add site url's name in the app created
         # using facebook
-        site = self.Website.create({
+        site, = self.Website.create([{
             'name': 'localhost',
             'url_map': url_map.id,
             'company': company.id,
             'application_user': USER,
             'default_language': en_us.id,
             'guest_user': guest_user.id,
-        })
+        }])
+        self.templates = {
+            'home.jinja': '{{ get_flashed_messages() }}',
+            'login.jinja':
+                '{{ login_form.errors }} {{ get_flashed_messages() }}',
+        }
         return {
             'site': site
         }
@@ -122,11 +138,6 @@ class TestFacebookAuth(NereidTestCase):
         """
         Return templates
         """
-        self.templates = {
-            'localhost/home.jinja': '{{ get_flashed_messages() }}',
-            'localhost/login.jinja':
-                '{{ login_form.errors }} {{ get_flashed_messages() }}'
-        }
         return self.templates.get(name)
 
     def test_0010_login(self):
