@@ -3,7 +3,7 @@
     <data noupdate="1">
     
         <record id="facebook_authorized_login" model="nereid.url_rule">
-            <field name="rule">/&lt;language&gt;/auth/facebook_authorized_login</field>
+            <field name="rule">/auth/facebook_authorized_login</field>
             <field name="endpoint">nereid.user.facebook_authorized_login</field>
             <field name="sequence" eval="100" />
             <field name="http_method_get" eval="True"/>
@@ -11,7 +11,7 @@
         </record>
     
         <record id="facebook_login" model="nereid.url_rule">
-            <field name="rule">/&lt;language&gt;/auth/facebook</field>
+            <field name="rule">/auth/facebook</field>
             <field name="endpoint">nereid.user.facebook_login</field>
             <field name="sequence" eval="110" />
             <field name="http_method_get" eval="True"/>
