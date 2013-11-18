@@ -75,6 +75,7 @@ class TestFacebookAuth(NereidTestCase):
         self.Language = POOL.get('ir.lang')
         self.Website = POOL.get('nereid.website')
         self.Party = POOL.get('party.party')
+        self.Locale = POOL.get('nereid.website.locale')
 
     def setup_defaults(self):
         """
@@ -115,6 +116,11 @@ class TestFacebookAuth(NereidTestCase):
         }])
         url_map, = self.UrlMap.search([], limit=1)
         en_us, = self.Language.search([('code', '=', 'en_US')])
+        self.locale_en_us, = self.Locale.create([{
+            'code': 'en_US',
+            'language': en_us.id,
+            'currency': usd.id,
+        }])
         # When running this module, add site url's name in the app created
         # using facebook
         site, = self.Website.create([{
@@ -122,7 +128,7 @@ class TestFacebookAuth(NereidTestCase):
             'url_map': url_map.id,
             'company': company.id,
             'application_user': USER,
-            'default_language': en_us.id,
+            'default_locale': self.locale_en_us.id,
             'guest_user': guest_user.id,
         }])
         self.templates = {
@@ -149,12 +155,13 @@ class TestFacebookAuth(NereidTestCase):
             app = self.get_app()
 
             with app.test_client() as c:
-                response = c.get('/en_US/auth/facebook?next=/en_US')
+                response = c.get('/auth/facebook?next=/')
                 self.assertEqual(response.status_code, 302)
 
             # Redirect to the home page since
             self.assertTrue(
-                '<a href="/en_US/login">/en_US/login</a>' in response.data
+                '<a href="/login">/login</a>' in
+                response.data
             )
             response = c.get('/')
             self.assertTrue(
@@ -175,7 +182,7 @@ class TestFacebookAuth(NereidTestCase):
             })
 
             with app.test_client() as c:
-                response = c.get('/en_US/auth/facebook?next=/en_US')
+                response = c.get('/auth/facebook?next=/en_US')
                 self.assertEqual(response.status_code, 302)
                 self.assertTrue(
                     'https://www.facebook.com/dialog/oauth' in response.data
