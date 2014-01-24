@@ -160,7 +160,7 @@ class NereidUser:
             # if the user has no facebook id save it
             cls.write([user], {'facebook_id': me.data['id']})
         flash(_(
-            "You are now logged in. Welcome %(name)s", name=user.name
+            "You are now logged in. Welcome %(name)s", name=user.display_name
         ))
         login.send()
         if request.is_xhr:
