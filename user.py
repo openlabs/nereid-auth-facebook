@@ -12,7 +12,8 @@ from nereid.globals import session, request
 from nereid.signals import login, failed_login
 from flask_oauth import OAuth
 from trytond.model import fields
-from trytond.pool import PoolMeta
+from trytond.pool import PoolMeta, Pool
+from trytond.transaction import Transaction
 
 from .i18n import _
 
@@ -92,6 +93,8 @@ class NereidUser:
         """Authorized handler to which facebook will redirect the user to
         after the login attempt is made.
         """
+        Party = Pool().get('party.party')
+
         facebook = request.nereid_website.get_facebook_oauth_client()
         if facebook is None:
             return redirect(
@@ -130,10 +133,11 @@ class NereidUser:
         me = facebook.get('/me')
 
         # Find the user
-        users = cls.search([
-            ('email', '=', me.data['email']),
-            ('company', '=', request.nereid_website.company.id),
-        ])
+        with Transaction().set_context(active_test=False):
+            users = cls.search([
+                ('email', '=', me.data['email']),
+                ('company', '=', request.nereid_website.company.id),
+            ])
         if not users:
             current_app.logger.debug(
                 "No FB user with email %s" % me.data['email']
@@ -141,12 +145,13 @@ class NereidUser:
             current_app.logger.debug(
                 "Registering new user %s" % me.data['name']
             )
+            party, = Party.create([{'name': me.data['name']}])
             user, = cls.create([{
-                'name': me.data['name'],
+                'party': party.id,
                 'display_name': me.data['name'],
                 'email': me.data['email'],
                 'facebook_id': me.data['id'],
-                'addresses': False,
+                'active': True,
             }])
             flash(
                 _('Thanks for registering with us using facebook')
