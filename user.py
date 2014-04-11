@@ -9,8 +9,9 @@
 """
 from nereid import url_for, flash, redirect, current_app
 from nereid.globals import session, request
-from nereid.signals import login, failed_login
+from nereid.signals import failed_login
 from flask_oauth import OAuth
+from flask.ext.login import login_user
 from trytond.model import fields
 from trytond.pool import PoolMeta, Pool
 from trytond.transaction import Transaction
@@ -159,15 +160,13 @@ class NereidUser:
         else:
             user, = users
 
-        # Add the user to session and trigger signals
-        session['user'] = user.id
         if not user.facebook_id:
             # if the user has no facebook id save it
             cls.write([user], {'facebook_id': me.data['id']})
         flash(_(
             "You are now logged in. Welcome %(name)s", name=user.display_name
         ))
-        login.send()
+        login_user(user)
         if request.is_xhr:
             return 'OK'
         return redirect(
