@@ -92,7 +92,12 @@ major_version, minor_version, _ = info.get('version', '0.0.1').split('.', 2)
 major_version = int(major_version)
 minor_version = int(minor_version)
 
-requires = ['flask_oauth']
+requires = [
+    'flask_oauth',
+    # XXX: Remove with next major version change.
+    # This was added because flask-login was introduced later
+    'trytond_nereid>=3.0.5.0',
+]
 for dep in info.get('depends', []):
     if not re.match(r'(ir|res|webdav)(\W|$)', dep):
         requires.append(
