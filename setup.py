@@ -94,9 +94,7 @@ minor_version = int(minor_version)
 
 requires = [
     'flask_oauth',
-    # XXX: Remove with next major version change.
-    # This was added because flask-login was introduced later
-    'trytond_nereid>=3.0.5.0',
+    'trytond_nereid>=3.0.7.0',
 ]
 for dep in info.get('depends', []):
     if not re.match(r'(ir|res|webdav)(\W|$)', dep):
