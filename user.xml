@@ -10,20 +10,7 @@
         <record id="inherit_nereid_website_facebook" model="ir.ui.view">
             <field name="model">nereid.website</field>
             <field name="inherit" ref="nereid.website_view_form"/>
-            <field name="arch" type="xml">
-                <![CDATA[
-                <data>
-                    <xpath expr="/form/notebook" position="inside">
-                        <page string="Facebook Configuration" id="facebook">
-                          <label name="facebook_app_id" />
-                          <field name="facebook_app_id" />
-                          <label name="facebook_app_secret" />
-                          <field name="facebook_app_secret" />
-                        </page>
-                    </xpath>
-                </data>
-                ]]>
-            </field>
+            <field name="name">website_form</field>
         </record>
 
     </data>
