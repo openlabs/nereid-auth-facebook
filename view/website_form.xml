@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+    <xpath expr="/form/notebook" position="inside">
+        <page string="Facebook Configuration" id="facebook">
+          <label name="facebook_app_id" />
+          <field name="facebook_app_id" />
+          <label name="facebook_app_secret" />
+          <field name="facebook_app_secret" />
+        </page>
+    </xpath>
+</data>

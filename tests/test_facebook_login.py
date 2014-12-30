@@ -77,6 +77,12 @@ class TestFacebookAuth(NereidTestCase):
         self.Party = POOL.get('party.party')
         self.Locale = POOL.get('nereid.website.locale')
 
+        self.templates = {
+            'home.jinja': '{{ get_flashed_messages() }}',
+            'login.jinja':
+                '{{ login_form.errors }} {{ get_flashed_messages() }}',
+        }
+
     def setup_defaults(self):
         """
         Setup defaults
@@ -129,22 +135,10 @@ class TestFacebookAuth(NereidTestCase):
             'company': company.id,
             'application_user': USER,
             'default_locale': self.locale_en_us.id,
-            'guest_user': guest_user.id,
         }])
-        self.templates = {
-            'home.jinja': '{{ get_flashed_messages() }}',
-            'login.jinja':
-                '{{ login_form.errors }} {{ get_flashed_messages() }}',
-        }
         return {
             'site': site
         }
-
-    def get_template_source(self, name):
-        """
-        Return templates
-        """
-        return self.templates.get(name)
 
     def test_0010_login(self):
         """

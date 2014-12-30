@@ -1,16 +1,11 @@
 language: python
 python:
-  - "2.6"
-  - "2.7"
-install:
-  - pip install flake8
-  - python setup.py install
+  - 2.7
 script:
-  - python setup.py test
-  - flake8 .
-notifications:
-  email:
-    - ci-notify@openlabs.co.in
-
+  - make test-sqlite
+  - make test-flake8
 env:
   - FACEBOOK_APP_ID=152288694978641 FACEBOOK_APP_SECRET=1f166ff67503972ceb44e2b01548db20
+notifications:
+  email:
+  - ci-notify@openlabs.co.in
