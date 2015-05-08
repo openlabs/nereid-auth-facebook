@@ -4,10 +4,10 @@
 
     Facebook based user authentication code
 
-    :copyright: (c) 2012-2014 by Openlabs Technologies & Consulting (P) LTD
+    :copyright: (c) 2012-2015 by Openlabs Technologies & Consulting (P) LTD
     :license: GPLv3, see LICENSE for more details.
 """
-from nereid import url_for, flash, redirect, current_app, route
+from nereid import url_for, flash, redirect, current_app, route, current_user
 from nereid.globals import session, request
 from nereid.signals import failed_login
 from flask_oauth import OAuth
@@ -60,7 +60,7 @@ class Website:
         Add facebook_id to the user_status if the user is logged in
         """
         rv = super(Website, self)._user_status()
-        if not request.is_guest_user and request.nereid_user.facebook_id:
+        if not current_user.is_anonymous() and request.nereid_user.facebook_id:
             rv['facebook_id'] = request.nereid_user.facebook_id
         return rv
 
