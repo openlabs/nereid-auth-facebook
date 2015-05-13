@@ -4,7 +4,7 @@
 
     Test the facebook login
 
-    :copyright: (c) 2012-2013 by Openlabs Technologies & Consulting (P) LTD
+    :copyright: (c) 2012-2015 by Openlabs Technologies & Consulting (P) LTD
     :license: GPLv3, see LICENSE for more details.
 """
 import os
@@ -71,7 +71,6 @@ class TestFacebookAuth(NereidTestCase):
         self.Country = POOL.get('country.country')
         self.Currency = POOL.get('currency.currency')
         self.NereidUser = POOL.get('nereid.user')
-        self.UrlMap = POOL.get('nereid.url_map')
         self.Language = POOL.get('ir.lang')
         self.Website = POOL.get('nereid.website')
         self.Party = POOL.get('party.party')
@@ -120,7 +119,6 @@ class TestFacebookAuth(NereidTestCase):
             'password': 'password',
             'company': company.id,
         }])
-        url_map, = self.UrlMap.search([], limit=1)
         en_us, = self.Language.search([('code', '=', 'en_US')])
         self.locale_en_us, = self.Locale.create([{
             'code': 'en_US',
@@ -131,7 +129,6 @@ class TestFacebookAuth(NereidTestCase):
         # using facebook
         site, = self.Website.create([{
             'name': 'localhost',
-            'url_map': url_map.id,
             'company': company.id,
             'application_user': USER,
             'default_locale': self.locale_en_us.id,

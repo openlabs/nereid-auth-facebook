@@ -4,21 +4,11 @@
 
     Test view and depends
 
-    :copyright: (c) 2013 by Openlabs Technologies & Consulting (P) LTD
+    :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) LTD
     :license: GPLv3, see LICENSE for more details.
 """
-import sys
-import os
-DIR = os.path.abspath(
-    os.path.normpath(os.path.join(
-        __file__,
-        '..', '..', '..', '..', '..', 'trytond'
-    ))
-)
-if os.path.isdir(DIR):
-    sys.path.insert(0, os.path.dirname(DIR))
-
 import unittest
+
 import trytond.tests.test_tryton
 from trytond.tests.test_tryton import test_view, test_depends
 
